@@ -1,0 +1,35 @@
+name: CI Pipeline
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  format-lint:
+    name: Run format:check and lint 
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile 
+      - name: Check linting
+        run: pnpm run lint
+      - name: Check formatting
+        run: |
+          if ! pnpm run format:check ; then
+            echo "Please format the code by running: pnpm run format"
+            exit 1
+          fi
